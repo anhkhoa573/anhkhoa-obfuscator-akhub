@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lua Encoder Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#08080c;--bg2:#12121a;--border:rgba(255,255,255,.07);--text:#eaeaf2;--muted:#6b6b85;--cyan:#00b4ff;--purple:#8c50ff;--green:#22c55e;--red:#ef4444}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
+.bg::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(0,180,255,.12),transparent 70%);top:-200px;left:-200px;border-radius:50%;filter:blur(80px)}
+.bg::after{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(140,80,255,.12),transparent 70%);bottom:-200px;right:-200px;border-radius:50%;filter:blur(80px)}
+.container{max-width:900px;margin:0 auto;position:relative;z-index:1}
+header{text-align:center;padding:24px 0}
+.logo{width:60px;height:60px;margin:0 auto 12px;border-radius:16px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 10px 30px rgba(0,180,255,.25)}
+h1{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.82rem}
+.badge{display:inline-block;padding:4px 12px;margin-top:10px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:20px;font-size:.7rem;color:#4ade80;font-weight:600}
+
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.btn{padding:11px 18px;border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;box-shadow:0 6px 18px rgba(0,180,255,.25)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 25px rgba(0,180,255,.4)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{background:rgba(0,0,0,.3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:rgba(0,180,255,.08);border-color:rgba(0,180,255,.4)}
+.btn-danger{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-success{background:linear-gradient(135deg,var(--green),#16a34a);color:#fff;box-shadow:0 6px 18px rgba(34,197,94,.25)}
+.btn-success:hover{transform:translateY(-1px);box-shadow:0 10px 25px rgba(34,197,94,.4)}
+
+.file-input{position:relative;overflow:hidden;display:inline-block}
+.file-input input{position:absolute;left:0;top:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.editor-grid{grid-template-columns:1fr}}
+.box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.box-head{padding:12px 16px;background:rgba(0,0,0,.3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.box-head span{font-size:.8rem;font-weight:700;color:var(--cyan);letter-spacing:.5px;text-transform:uppercase}
+.box-head .count{font-size:.72rem;color:var(--muted);font-family:Consolas,monospace}
+textarea{width:100%;height:300px;background:#08080d;border:none;padding:14px;color:var(--text);font-family:Consolas,monospace;font-size:12.5px;resize:vertical;outline:none;line-height:1.5}
+textarea::placeholder{color:#4a4a5a}
+
+.result-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:16px;display:none}
+.result-box.show{display:block;animation:up .4s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.result-box h3{color:var(--cyan);font-size:.82rem;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+.code-box{background:#08080d;border:1px solid var(--border);border-radius:10px;padding:14px;font-family:Consolas,monospace;font-size:12px;word-break:break-all;color:#4ade80;max-height:180px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;margin-bottom:10px;border-left:3px solid var(--green)}
+.code-box.purple{color:#c084fc;border-left-color:var(--purple)}
+.code-box.cyan{color:#22d3ee;border-left-color:var(--cyan)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+.info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.info-item{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.info-item .val{font-size:1rem;font-weight:700;color:var(--cyan)}
+.info-item .lbl{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.status{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(20,20,28,.95);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:.82rem;z-index:100;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.status.show{opacity:1}
+.status.success{color:#4ade80;border-color:rgba(34,197,94,.3)}
+.status.error{color:#f87171;border-color:rgba(239,68,68,.3)}
+
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.footer{text-align:center;margin-top:24px;font-size:.72rem;color:#4a4a5a}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="container">
+<header>
+<div class="logo">&#128274;</div>
+<h1>Lua Encoder Pro</h1>
+<p class="sub">Ma hoa Lua - Raw Link - Loadstring cho Delta X</p>
+<div class="badge">Anti-Crack - Anti-Debug - Base64</div>
+</header>
+
+<div class="toolbar">
+<div class="file-input">
+<button class="btn btn-secondary">&#128193; Chon file Lua</button>
+<input type="file" id="fileInput" accept=".lua,.txt" onchange="loadFile(event)">
+</div>
+<button class="btn btn-primary" id="btnEncode" onclick="encode()">&#9889; Encode</button>
+<button class="btn btn-secondary" onclick="copyRaw()">&#128203; Copy Raw</button>
+<button class="btn btn-danger" onclick="clearAll()">&#129529; Xoa het</button>
+</div>
+
+<div class="editor-grid">
+<div class="box">
+<div class="box-head">
+<span>Code goc</span>
+<span class="count" id="inputCount">0 ky tu</span>
+</div>
+<textarea id="inputCode" placeholder="Dan code Lua vao day hoac chon file..." oninput="updateCount()"></textarea>
+</div>
+<div class="box">
+<div class="box-head">
+<span>Loadstring</span>
+<span class="count" id="outputCount">0 ky tu</span>
+</div>
+<textarea id="outputCode" readonly placeholder="Ket qua se hien o day..."></textarea>
+</div>
+</div>
+
+<div class="result-box" id="resultBox">
+<h3>&#128279; Raw Link (dung cho loadstring)</h3>
+<div class="code-box cyan" id="rawUrl"></div>
+<button class="btn btn-secondary" onclick="copyUrl()">&#128203; Copy Link Raw</button>
+
+<h3 style="margin-top:20px">&#9889; Loadstring cho Delta X</h3>
+<div class="code-box purple" id="loadstringUrl"></div>
+<button class="btn btn-success" onclick="copyLoadstring()">&#128203; Copy Loadstring</button>
+
+<div class="info">
+<div class="info-item">
+<div class="val" id="origSize">0</div>
+<div class="lbl">Code goc</div>
+</div>
+<div class="info-item">
+<div class="val" id="encSize">0</div>
+<div class="lbl">Sau ma hoa</div>
+</div>
+</div>
+</div>
+
+<div class="footer">Powered by ANHKHOA System</div>
+</div>
+
+<div class="status" id="status"></div>
+
+<script>
+function showStatus(msg, type){
+    var s = document.getElementById("status");
+    s.textContent = msg;
+    s.className = "status show " + (type || "");
+    setTimeout(function(){ s.classList.remove("show"); }, 2500);
+}
+
+function updateCount(){
+    var i = document.getElementById("inputCode");
+    var o = document.getElementById("outputCode");
+    document.getElementById("inputCount").textContent = i.value.length + " ky tu";
+    document.getElementById("outputCount").textContent = o.value.length + " ky tu";
+}
+
+function loadFile(e){
+    var f = e.target.files[0];
+    if(!f) return;
+    var r = new FileReader();
+    r.onload = function(ev){
+        document.getElementById("inputCode").value = ev.target.result;
+        updateCount();
+        showStatus("Da load: " + f.name, "success");
+    };
+    r.readAsText(f);
+}
+
+async function encode(){
+    var code = document.getElementById("inputCode").value.trim();
+    if(!code){ showStatus("Nhap code Lua!", "error"); return; }
+    var btn = document.getElementById("btnEncode");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Dang ma hoa...';
+    try{
+        var res = await fetch("/api/encode", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({code: code})
+        });
+        var data = await res.json();
+        if(data.ok){
+            document.getElementById("outputCode").value = data.loader;
+            document.getElementById("rawUrl").textContent = data.raw_url;
+            document.getElementById("loadstringUrl").textContent = data.loadstring_url;
+            document.getElementById("origSize").textContent = data.original_size;
+            document.getElementById("encSize").textContent = data.encoded_size;
+            document.getElementById("resultBox").classList.add("show");
+            updateCount();
+            showStatus("Ma hoa thanh cong!", "success");
+        } else {
+            showStatus("Loi: " + data.error, "error");
+        }
+    } catch(e){
+        showStatus("Loi ket noi: " + e.message, "error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '&#9889; Encode';
+    }
+}
+
+function copyRaw(){
+    var t = document.getElementById("outputCode").value;
+    if(!t){ showStatus("Chua co ket qua!", "error"); return; }
+    navigator.clipboard.writeText(t).then(function(){
+        showStatus("Da copy raw!", "success");
+    });
+}
+
+function copyUrl(){
+    var t = document.getElementById("rawUrl").textContent;
+    if(!t) return;
+    navigator.clipboard.writeText(t).then(function(){
+        showStatus("Da copy link raw!", "success");
+    });
+}
+
+function copyLoadstring(){
+    var t = document.getElementById("loadstringUrl").textContent;
+    if(!t) return;
+    navigator.clipboard.writeText(t).then(function(){
+        showStatus("Da copy loadstring!", "success");
+    });
+}
+
+function clearAll(){
+    document.getElementById("inputCode").value = "";
+    document.getElementById("outputCode").value = "";
+    document.getElementById("resultBox").classList.remove("show");
+    updateCount();
+    showStatus("Da xoa het", "success");
+}
+</script>
+</body>
+</html>
